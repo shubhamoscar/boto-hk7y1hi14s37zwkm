@@ -64,18 +64,20 @@ class Domain:
 
         :type expected_value: list
         :param expected_value: If supplied, this is a list or tuple consisting
-                               of a single attribute name and expected value.
-                               The list can be of the form:
-                                * ['name', 'value']
-                               In which case the call will first verify
-                               that the attribute "name" of this item has
-                               a value of "value".  If it does, the delete
-                               will proceed, otherwise a ConditionalCheckFailed
-                               error will be returned.
-                               The list can also be of the form:
-                                * ['name', True|False]
-                               which will simply check for the existence (True)
-                               or non-existencve (False) of the attribute.
+            of a single attribute name and expected value. The list can be 
+            of the form:
+
+             * ['name', 'value']
+
+            In which case the call will first verify that the attribute 
+            "name" of this item has a value of "value".  If it does, the delete
+            will proceed, otherwise a ConditionalCheckFailed error will be 
+            returned. The list can also be of the form:
+            
+             * ['name', True|False]
+            
+            which will simply check for the existence (True) or non-existence 
+            (False) of the attribute.
 
         :type replace: bool
         :param replace: Whether the attribute values passed in will replace
@@ -145,18 +147,20 @@ class Domain:
                            
         :type expected_value: list
         :param expected_value: If supplied, this is a list or tuple consisting
-                               of a single attribute name and expected value.
-                               The list can be of the form:
-                                * ['name', 'value']
-                               In which case the call will first verify
-                               that the attribute "name" of this item has
-                               a value of "value".  If it does, the delete
-                               will proceed, otherwise a ConditionalCheckFailed
-                               error will be returned.
-                               The list can also be of the form:
-                                * ['name', True|False]
-                               which will simply check for the existence (True)
-                               or non-existencve (False) of the attribute.
+            of a single attribute name and expected value. The list can be of 
+            the form:
+
+             * ['name', 'value']
+
+            In which case the call will first verify that the attribute "name"
+            of this item has a value of "value".  If it does, the delete
+            will proceed, otherwise a ConditionalCheckFailed error will be 
+            returned. The list can also be of the form:
+
+             * ['name', True|False]
+
+            which will simply check for the existence (True) or 
+            non-existence (False) of the attribute.
 
         :rtype: bool
         :return: True if successful
@@ -170,15 +174,15 @@ class Domain:
         
         :type items: dict or dict-like object
         :param items: A dictionary-like object.  The keys of the dictionary are
-                      the item names and the values are either:
+            the item names and the values are either:
 
-                      * dictionaries of attribute names/values, exactly the
-                        same as the attribute_names parameter of the scalar
-                        put_attributes call.  The attribute name/value pairs
-                        will only be deleted if they match the name/value
-                        pairs passed in.
-                      * None which means that all attributes associated
-                        with the item should be deleted.  
+                * dictionaries of attribute names/values, exactly the
+                  same as the attribute_names parameter of the scalar
+                  put_attributes call.  The attribute name/value pairs
+                  will only be deleted if they match the name/value
+                  pairs passed in.
+                * None which means that all attributes associated
+                  with the item should be deleted.  
 
         :rtype: bool
         :return: True if successful
@@ -202,17 +206,8 @@ class Domain:
         return SelectResultSet(self, query, max_items=max_items, next_token=next_token,
                                consistent_read=consistent_read)
 
-    def get_item(self, item_name, consistent_read=False):
-        """
-        Retrieves an item from the domain, along with all of its attributes.
-        
-        :param string item_name: The name of the item to retrieve.
-        :rtype: :class:`boto.sdb.item.Item` or ``None``
-        :keyword bool consistent_read: When set to true, ensures that the most 
-                                       recent data is returned.
-        :return: The requested item, or ``None`` if there was no match found 
-        """
-        item = self.get_attributes(item_name, consistent_read=consistent_read)
+    def get_item(self, item_name):
+        item = self.get_attributes(item_name)
         if item:
             item.domain = self
             return item
