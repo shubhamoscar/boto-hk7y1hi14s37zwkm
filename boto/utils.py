@@ -288,7 +288,8 @@ class ShellCommand(object):
         self.command = command
         self.log_fp = StringIO.StringIO()
         self.wait = wait
-        self.run(cwd)
+        self.fail_fast = fail_fast
+        self.run()
 
     def run(self, cwd=None):
         boto.log.info('running:%s' % self.command)
