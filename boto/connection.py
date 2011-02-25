@@ -658,6 +658,7 @@ class AWSQueryConnection(AWSAuthConnection):
             boto.log.error('Null body %s' % body)
             raise self.ResponseError(response.status, response.reason, body)
         elif response.status == 200:
+            print body
             rs = ResultSet(markers)
             h = handler.XmlHandler(rs, parent)
             xml.sax.parseString(body, h)
