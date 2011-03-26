@@ -29,6 +29,7 @@ import boto
 from boto.connection import AWSQueryConnection
 from boto.ec2.regioninfo import RegionInfo
 from boto.ec2.autoscale.request import Request
+#from boto.ec2.autoscale.trigger import Trigger
 from boto.ec2.autoscale.launchconfig import LaunchConfiguration
 from boto.ec2.autoscale.group import AutoScalingGroup
 from boto.ec2.autoscale.activity import Activity
@@ -198,19 +199,33 @@ class AutoScaleConnection(AWSQueryConnection):
         return self.get_object('CreateLaunchConfiguration', params,
                                   Request, verb='POST')
 
-    def delete_launch_configuration(self, launch_config_name):
-        """
-        Deletes the specified LaunchConfiguration.
+    #def create_trigger(self, trigger):
+    #    """
+    #
+    #    """
+    #    params = {'TriggerName'                 : trigger.name,
+    #              'AutoScalingGroupName'        : trigger.autoscale_group.name,
+    #              'MeasureName'                 : trigger.measure_name,
+    #              'Statistic'                   : trigger.statistic,
+    #              'Period'                      : trigger.period,
+    #              'Unit'                        : trigger.unit,
+    #              'LowerThreshold'              : trigger.lower_threshold,
+    #              'LowerBreachScaleIncrement'   : trigger.lower_breach_scale_increment,
+    #              'UpperThreshold'              : trigger.upper_threshold,
+    #              'UpperBreachScaleIncrement'   : trigger.upper_breach_scale_increment,
+    #              'BreachDuration'              : trigger.breach_duration}
+    #    # dimensions should be a list of tuples
+    #    dimensions = []
+    #    for dim in trigger.dimensions:
+    #        name, value = dim
+    #        dimensions.append(dict(Name=name, Value=value))
+    #    self.build_list_params(params, dimensions, 'Dimensions')
+    #
+    #    req = self.get_object('CreateOrUpdateScalingTrigger', params,
+    #                           Request)
+    #    return req
 
-        The specified launch configuration must not be attached to an Auto
-        Scaling group. Once this call completes, the launch configuration is no
-        longer available for use.
-        """
-        params = {'LaunchConfigurationName' : launch_config_name}
-        return self.connection.get_object('DeleteLaunchConfiguration', params,
-                                          Request)
-
-    def get_all_groups(self, names=None, max_records=None, next_token=None):
+    def get_all_groups(self, names=None):
         """
         Returns a full description of each Auto Scaling group in the given
         list. This includes all Amazon EC2 instances that are members of the
@@ -271,27 +286,10 @@ class AutoScaleConnection(AWSQueryConnection):
             self.build_list_params(params, activity_ids, 'ActivityIds')
         return self.get_list('DescribeScalingActivities', params, [('member', Activity)])
 
-    def get_all_scheduled_actions(self, autoscale_group=None, scheduled_actions=None,
-                                  start_time=None, end_time=None, max_records=None, next_token=None):
-        """
-        Lists all the actions scheduled for your Auto Scaling group that haven't been executed.
-        """
-        params = {}
-        # XXX
-        if autoscale_group:
-            params['AutoScalingGroupName'] = autoscale_group
-        if max_records:
-            params['MaxRecords'] = max_records
-        if next_token:
-            params['NextToken'] = next_token
-
-    def delete_scheduled_action(self, scheduled_action_name, autoscale_group=None):
-        params = {
-                    'ScheduledActionName'       :   scheduled_action_name,
-                 }
-        if autoscale_group:
-            params['AutoScalingGroupName'] = autoscale_group
-        return self.get_status('DeleteScheduledAction', params)
+    #def get_all_triggers(self, autoscale_group):
+    #    params = {'AutoScalingGroupName' : autoscale_group}
+    #    return self.get_list('DescribeTriggers', params,
+    #                         [('member', Trigger)])
 
     def terminate_instance(self, instance_id, decrement_capacity=True):
         params = {
