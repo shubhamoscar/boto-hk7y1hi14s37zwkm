@@ -214,7 +214,7 @@ class AutoScaleConnection(AWSQueryConnection):
         if scaling_policy.cooldown is not None:
             params['Cooldown'] = scaling_policy.cooldown
             
-        return self.get_object('PutScalingPolicy', params, Request, verb='POST')
+        return self.get_object('PutScalingPolicy', params)
     
     def get_all_policies(self, **kwargs):
         params = {}
@@ -431,16 +431,32 @@ class AutoScaleConnection(AWSQueryConnection):
             params['HonorCooldown'] = honor_cooldown
         return self.get_status('ExecutePolicy', params)
 
-    def put_scaling_policy(self, policy_name, as_group, adjustment_type, scaling_adjustment, cooldown=None):
-        params = {
-                    'PolicyName'                :   policy_name,
-                    'AutoScalingGroupName'      :   as_group,
-                    'AdjustmentType'            :   adjustment_type,
-                    'ScalingAdjustment'         :   scaling_adjustment,
-                 }
-        if cooldown:
-            params['Cooldown'] = cooldown
-        # XXX
-        return self.get_object('PutScalingPolicy', params, {})
+    def set_instance_health(self, instance_id, health_status,
+                            should_respect_grace_period=True):
+        """
+        Explicitly set the health status of an instance.
 
+        :type instance_id: str
+        :param instance_id: The identifier of the EC2 instance.
+
+        :type health_status: str
+        :param health_status: The health status of the instance.
+                              "Healthy" means that the instance is
+                              healthy and should remain in service.
+                              "Unhealthy" means that the instance is
+                              unhealthy. Auto Scaling should terminate
+                              and replace it.
+
+        :type should_respect_grace_period: bool
+        :param should_respect_grace_period: If True, this call should
+                                            respect the grace period
+                                            associated with the group.
+        """
+        params = {'InstanceId' : instance_id,
+                  'HealthStatus' : health_status}
+        if should_respect_grace_period:
+            params['ShouldRespectGracePeriod'] = 'true'
+        else:
+            params['ShouldRespectGracePeriod'] = 'false'
+        return self.get_status('SetInstanceHealth', params)
 
