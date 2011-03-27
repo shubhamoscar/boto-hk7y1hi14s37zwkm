@@ -225,40 +225,47 @@ class AutoScaleConnection(AWSQueryConnection):
     #                           Request)
     #    return req
 
-    def get_all_groups(self, names=None):
+    def get_all_groups(self, **kwargs):
         """
-        Returns a full description of each Auto Scaling group in the given
-        list. This includes all Amazon EC2 instances that are members of the
-        group. If a list of names is not provided, the service returns the full
-        details of all Auto Scaling groups.
-
-        This action supports pagination by returning a token if there are more
-        pages to retrieve. To get the next page, call this action again with
-        the returned token as the NextToken parameter.
+        Get all autoscaling groups.
+        
+        :type names: list
+        :param names: List of group names which should be searched for.
+        
+        :type max_records: int
+        :param max_records: Maximum amount of groups to return.
+        
+        :rtype: list
+        :returns: List of :class:`boto.ec2.autoscale.group.AutoScalingGroup` instances.
         """
         params = {}
-        if max_records:
+        max_records = kwargs.get('max_records', None)
+        names = kwargs.get('names', None)
+        if max_records is not None:
             params['MaxRecords'] = max_records
-        if next_token:
-            params['NextToken'] = next_token
         if names:
             self.build_list_params(params, names, 'AutoScalingGroupNames')
         return self.get_list('DescribeAutoScalingGroups', params,
                              [('member', AutoScalingGroup)])
 
-    def get_all_launch_configurations(self, names=None, max_records=None, next_token=None):
+    def get_all_launch_configurations(self, **kwargs):
         """
-        Returns a full description of the launch configurations given the
-        specified names.
+        Get launch configurations.
 
-        If no names are specified, then the full details of all launch
-        configurations are returned.
+        :type names: list
+        :param names: List of configuration names which should be searched for.
+
+        :type max_records: int
+        :param max_records: Maximum amount of configurations to return.
+        
+        :rtype: list
+        :returns: List of :class:`boto.ec2.autoscale.launchconfig.LaunchConfiguration` instances.
         """
         params = {}
-        if max_records:
+        max_records = kwargs.get('max_records', None)
+        names = kwargs.get('names', None)
+        if max_records is not None:
             params['MaxRecords'] = max_records
-        if next_token:
-            params['NextToken'] = next_token
         if names:
             self.build_list_params(params, names, 'LaunchConfigurationNames')
         return self.get_list('DescribeLaunchConfigurations', params,
