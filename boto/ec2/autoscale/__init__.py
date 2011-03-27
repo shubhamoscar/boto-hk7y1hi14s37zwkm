@@ -197,8 +197,32 @@ class AutoScaleConnection(AWSQueryConnection):
             # XXX:
             pass
         return self.get_object('CreateLaunchConfiguration', params,
-                                  Request, verb='POST')
+                                  Request)
 
+    def put_scaling_policy(self, scaling_policy):
+        """
+        Creates a new Scaling Policy.
+        """
+        params = {'AdjustmentType'      : scaling_policy.adjustment_type,
+                  'AutoScalingGroupName': scaling_policy.as_group.name,
+                  'PolicyName'          : scaling_policy.name,
+                  'ScalingAdjustment'   : scaling_policy.scaling_adjustment,}
+    
+        if scaling_policy.cooldown is not None:
+            params['Cooldown'] = scaling_policy.cooldown
+            
+        return self.get_object('PutScalingPolicy', params, Request, verb='POST')
+    
+    def get_all_policies(self, **kwargs):
+        params = {}
+        as_name = kwargs.get('as_name', None)
+        names = kwargs.get('names', None)
+        if as_name is not None:
+            params['AutoScalingGroupName'] = as_name
+        if names:
+            self.build_list_params(params, names, 'PolicyNames')
+        return self.get_list('DescribePolicies', params, [('member', ScalingPolicy)])
+      
     #def create_trigger(self, trigger):
     #    """
     #
@@ -224,8 +248,7 @@ class AutoScaleConnection(AWSQueryConnection):
     #    req = self.get_object('CreateOrUpdateScalingTrigger', params,
     #                           Request)
     #    return req
-
-    def get_all_groups(self, **kwargs):
+    def delete_launch_configuration(self, launch_config_name):
         """
         Get all autoscaling groups.
         
