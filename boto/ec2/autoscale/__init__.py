@@ -1,4 +1,4 @@
-# Copyright (c) 2009-2010 Reza Lotun http://reza.lotun.name/
+# Copyright (c) 2009-2011 Reza Lotun http://reza.lotun.name/
 # Copyright (c) 2011 Jann Kleen
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
@@ -34,8 +34,9 @@ from boto.ec2.autoscale.request import Request
 from boto.ec2.autoscale.launchconfig import LaunchConfiguration
 from boto.ec2.autoscale.group import AutoScalingGroup
 from boto.ec2.autoscale.activity import Activity
-from boto.ec2.autoscale.policy import AdjustmentTypes, MetricCollectionTypes, ScalingPolicy
+from boto.ec2.autoscale.policy import AdjustmentType, MetricCollectionTypes, ScalingPolicy
 from boto.ec2.autoscale.instance import Instance
+from boto.ec2.autoscale.scheduled import ScheduledUpdateGroupAction
 
 RegionData = {
     'us-east-1' : 'autoscaling.us-east-1.amazonaws.com',
@@ -319,10 +320,14 @@ class AutoScaleConnection(AWSQueryConnection):
             self.build_list_params(params, activity_ids, 'ActivityIds')
         return self.get_list('DescribeScalingActivities', params, [('member', Activity)])
 
-    #def get_all_triggers(self, autoscale_group):
-    #    params = {'AutoScalingGroupName' : autoscale_group}
-    #    return self.get_list('DescribeTriggers', params,
-    #                         [('member', Trigger)])
+
+    def delete_scheduled_action(self, scheduled_action_name, autoscale_group=None):
+        params = {
+                    'ScheduledActionName'       :   scheduled_action_name,
+                 }
+        if autoscale_group:
+            params['AutoScalingGroupName'] = autoscale_group
+        return self.get_status('DeleteScheduledAction', params)
 
     def terminate_instance(self, instance_id, decrement_capacity=True):
         params = {
@@ -341,7 +346,7 @@ class AutoScaleConnection(AWSQueryConnection):
         return self.get_status('DeletePolicy', params)
 
     def get_all_adjustment_types(self):
-        return self.get_list('DescribeAdjustmentTypes', {}, [('member', AdjustmentTypes)])
+        return self.get_list('DescribeAdjustmentTypes', {}, [('member', AdjustmentType)])
 
     def get_all_autoscaling_instances(self, instance_ids=None, max_records=None, next_token=None):
         """
@@ -410,8 +415,7 @@ class AutoScaleConnection(AWSQueryConnection):
             params['MaxRecords'] = max_records
         if next_token:
             params['NextToken'] = next_token
-        #XXX
-        return self.get_object('DescribeScheduledActions', params, {})
+        return self.get_list('DescribeScheduledActions', params, [('member', ScheduledUpdateGroupAction)])
 
     def disable_metrics_collection(self, as_group, metrics=None):
         """
