@@ -368,7 +368,7 @@ class AutoScaleConnection(AWSQueryConnection):
             params['MaxRecords'] = max_records
         if next_token:
             params['NextToken'] = next_token
-        return self.get_object('DescribeAutoScalingInstances', params, Instance)
+        return self.get_list('DescribeAutoScalingInstances', params, [('member', Instance)])
 
     def get_all_metric_collection_types(self):
         """ Returns a list of metrics and a corresponding list of granularities
