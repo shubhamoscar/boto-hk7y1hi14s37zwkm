@@ -19,13 +19,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
+<<<<<<< HEAD
 import weakref
+=======
+
+>>>>>>> 1561b06... Removed duplicated method definition.
 from boto.ec2.elb.listelement import ListElement
 from boto.resultset import ResultSet
 #from boto.ec2.autoscale.trigger import Trigger
 from boto.ec2.autoscale.request import Request
 from boto.ec2.autoscale.instance import Instance
-from boto.ec2.autoscale.launchconfig import LaunchConfiguration
 
 
 class ProcessType(object):
