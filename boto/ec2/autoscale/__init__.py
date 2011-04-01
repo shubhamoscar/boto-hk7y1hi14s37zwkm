@@ -26,6 +26,7 @@ Auto Scaling service.
 """
 
 import base64
+
 import boto
 from boto.connection import AWSQueryConnection
 from boto.ec2.regioninfo import RegionInfo
