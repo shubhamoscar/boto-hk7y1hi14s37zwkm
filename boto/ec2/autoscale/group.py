@@ -22,7 +22,11 @@
 
 from boto.ec2.elb.listelement import ListElement
 from boto.resultset import ResultSet
+<<<<<<< HEAD
 #from boto.ec2.autoscale.trigger import Trigger
+=======
+from boto.ec2.autoscale.launchconfig import LaunchConfiguration
+>>>>>>> 370bdf2... Fix to autoscale policy creation and launch config name parsing.
 from boto.ec2.autoscale.request import Request
 from boto.ec2.autoscale.instance import Instance
 
@@ -118,17 +122,17 @@ class AutoScalingGroup(object):
         :param health_check_type: The service you want the health status from,
                                    Amazon EC2 or Elastic Load Balancer.
 
-        :type launch_config: str
+        :type launch_config: str or LaunchConfiguration
         :param launch_config: Name of launch configuration (required).
 
 
         :type load_balancers: list
         :param load_balancers: List of load balancers.
 
-        :type maxsize: int
+        :type max_size: int
         :param maxsize: Maximum size of group (required).
 
-        :type minsize: int
+        :type min_size: int
         :param minsize: Minimum size of group (required).
 
         :type placement_group: str
@@ -148,11 +152,9 @@ class AutoScalingGroup(object):
         self.created_time = None
         default_cooldown = default_cooldown or kwargs.get('cooldown')  # backwards compatibility
         self.default_cooldown = int(default_cooldown) if default_cooldown is not None else None
-        self.launch_config = launch_config
-        if self.launch_config:
-            self.launch_config_name = self.launch_config.name
-        else:
-            self.launch_config_name = None
+        self.launch_config_name = launch_config
+        if launch_config and isinstance(launch_config, LaunchConfiguration):
+            self.launch_config_name = launch_config.name
         self.desired_capacity = desired_capacity
         lbs = load_balancers or []
         self.load_balancers = ListElement(lbs)
