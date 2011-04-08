@@ -257,8 +257,26 @@ class AutoScaleConnection(AWSQueryConnection):
 
     def delete_launch_configuration(self, launch_config_name):
         """
-        Get all autoscaling groups.
-        
+        Deletes the specified LaunchConfiguration.
+
+        The specified launch configuration must not be attached to an Auto
+        Scaling group. Once this call completes, the launch configuration is no
+        longer available for use.
+        """
+        params = {'LaunchConfigurationName' : launch_config_name}
+        return self.get_object('DeleteLaunchConfiguration', params, Request)
+
+    def get_all_groups(self, names=None, max_records=None, next_token=None):
+        """
+        Returns a full description of each Auto Scaling group in the given
+        list. This includes all Amazon EC2 instances that are members of the
+        group. If a list of names is not provided, the service returns the full
+        details of all Auto Scaling groups.
+
+        This action supports pagination by returning a token if there are more
+        pages to retrieve. To get the next page, call this action again with
+        the returned token as the NextToken parameter.
+
         :type names: list
         :param names: List of group names which should be searched for.
         
