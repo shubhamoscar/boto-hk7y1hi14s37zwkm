@@ -228,54 +228,15 @@ class CloudWatchConnection(AWSQueryConnection):
     def build_list_params(self, params, items, label):
         if isinstance(items, str):
             items = [items]
-        for index, item in enumerate(items):
-            i = index + 1
-            if isinstance(item, dict):
-                for k,v in item.iteritems():
-                    params[label % (i, 'Name')] = k
-                    if v is not None:
-                        params[label % (i, 'Value')] = v
-            else:
-                params[label % i] = item
-
-    def build_put_params(self, params, name, value=None, timestamp=None, 
-                        unit=None, dimensions=None, statistics=None):
-        args = (name, value, unit, dimensions, statistics)
-        length = max(map(lambda a: len(a) if isinstance(a, list) else 1, args))
-
-        def aslist(a):
-            if isinstance(a, list):
-                if len(a) != length:
-                    raise Exception('Must specify equal number of elements; expected %d.' % length)
-                return a
-            return [a] * length
-
-        for index, (name, value, unit, dimensions, statistics) in enumerate(zip(*map(aslist, args))):
-            metric_data = {'MetricName': name}
-
-            if timestamp:
-                metric_data['Timestamp'] = timestamp.isoformat()
-            
-            if unit:
-                metric_data['Unit'] = unit
-            
-            if dimensions:
-                self.build_list_params(metric_data, [dimensions], 'Dimensions.member.%d.%s')
-            
-            if statistics:
-                metric_data['StatisticValues.Maximum'] = statistics['maximum']
-                metric_data['StatisticValues.Minimum'] = statistics['minimum']
-                metric_data['StatisticValues.SampleCount'] = statistics['samplecount']
-                metric_data['StatisticValues.Sum'] = statistics['sum']
-                if value != None:
-                    log.warn('You supplied a value and statistics for a metric.  Posting statistics and not value.')
-            elif value != None:
-                metric_data['Value'] = value
-            else:
-                raise Exception('Must specify a value or statistics to put.')
-
-            for k, v in metric_data.iteritems():
-                params['MetricData.member.%d.%s' % (index + 1, k)] = v
+        elif isinstance(items, dict):
+            i = 1
+            for name in items:
+                params['%s.%d.Name' % (label,i)] = name
+                params['%s.%d.Value' % (label,i)] = items[name]
+                i += 1
+        else:
+            for i in range(1, len(items)+1):
+                params[label % i] = items[i-1]
 
     def get_metric_statistics(self, period, start_time, end_time, metric_name,
                               namespace, statistics, dimensions=None,
@@ -592,7 +553,7 @@ class CloudWatchConnection(AWSQueryConnection):
         if alarm.description:
             params['AlarmDescription'] = alarm.description
         if alarm.dimensions:
-            self.build_dimension_param(alarm.dimensions, params)
+            self.build_list_params(params, alarm.dimensions, 'Dimensions.member')
         if alarm.insufficient_data_actions:
             self.build_list_params(params, alarm.insufficient_data_actions,
                                    'InsufficientDataActions.member.%s')
