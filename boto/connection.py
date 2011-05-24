@@ -104,7 +104,7 @@ class HTTPRequest(object):
         :param method: The HTTP method name, 'GET', 'POST', 'PUT' etc.
 
         :type protocol: string
-        :param protocol: The http protocol used, 'http' or 'https'. 
+        :param protocol: The http protocol used, 'http' or 'https'.
 
         :type host: string
         :param host: Host to which the request is addressed. eg. abc.com
@@ -113,10 +113,10 @@ class HTTPRequest(object):
         :param port: port on which the request is being sent. Zero means unset,
                      in which case default port will be chosen.
 
-        :type path: string 
+        :type path: string
         :param path: URL path that is bein accessed.
 
-        :type auth_path: string 
+        :type auth_path: string
         :param path: The part of the URL path used when creating the
                      authentication string.
 
@@ -134,14 +134,19 @@ class HTTPRequest(object):
         """
         self.method = method
         self.protocol = protocol
-        self.host = host 
+        self.host = host
         self.port = port
         self.path = path
         if auth_path is None:
             auth_path = path
         self.auth_path = auth_path
         self.params = params
-        self.headers = headers
+        self.headers = headers.copy()
+        # chunked Transfer-Encoding should act only on PUT request.
+        if headers and 'Transfer-Encoding' in headers and \
+                headers['Transfer-Encoding'] == 'chunked' and \
+                self.method != 'PUT':
+            del self.headers['Transfer-Encoding']
         self.body = body
 
     def __str__(self):
@@ -173,12 +178,12 @@ class AWSAuthConnection(object):
         """
         :type host: str
         :param host: The host to make the connection to
-       
+
         :keyword str aws_access_key_id: Your AWS Access Key ID (provided by
-            Amazon). If none is specified, the value in your 
+            Amazon). If none is specified, the value in your
             ``AWS_ACCESS_KEY_ID`` environmental variable is used.
-        :keyword str aws_secret_access_key: Your AWS Secret Access Key 
-            (provided by Amazon). If none is specified, the value in your 
+        :keyword str aws_secret_access_key: Your AWS Secret Access Key
+            (provided by Amazon). If none is specified, the value in your
             ``AWS_SECRET_ACCESS_KEY`` environmental variable is used.
 
         :type is_secure: boolean
@@ -279,7 +284,7 @@ class AWSAuthConnection(object):
         self._connection = (self.server_name(), self.is_secure)
         self._last_rs = None
         self._auth_handler = auth.get_auth_handler(
-              host, config, self.provider, self._required_auth_capability()) 
+              host, config, self.provider, self._required_auth_capability())
 
     def __repr__(self):
         return '%s:%s' % (self.__class__.__name__, self.host)
@@ -467,7 +472,7 @@ class AWSAuthConnection(object):
 
         if self.https_validate_certificates and HAVE_HTTPS_CONNECTION:
             boto.log.debug("wrapping ssl socket for proxied connection; "
-                           "CA certificate file=%s", 
+                           "CA certificate file=%s",
                            self.ca_certificates_file)
             key_file = self.http_connection_kwargs.get('key_file', None)
             cert_file = self.http_connection_kwargs.get('cert_file', None)
@@ -610,6 +615,28 @@ class AWSAuthConnection(object):
                 headers.update(self.get_proxy_auth_header())
         return HTTPRequest(method, self.protocol, host, self.port,
                            path, auth_path, params, headers, data)
+
+    def fill_in_auth(self, http_request, **kwargs):
+        headers = http_request.headers
+        for key in headers:
+            val = headers[key]
+            if isinstance(val, unicode):
+                headers[key] = urllib.quote_plus(val.encode('utf-8'))
+
+        self._auth_handler.add_auth(http_request, **kwargs)
+
+        headers['User-Agent'] = UserAgent
+        if not headers.has_key('Content-Length'):
+            if not headers.has_key('Transfer-Encoding') or \
+                    headers['Transfer-Encoding'] != 'chunked':
+                headers['Content-Length'] = str(len(http_request.body))
+        return http_request
+
+    def _send_http_request(self, http_request, sender=None,
+                           override_num_retries=None):
+        return self._mexe(http_request.method, http_request.path,
+                          http_request.body, http_request.headers,
+                          http_request.host, sender, override_num_retries)
 
     def make_request(self, method, path, headers=None, data='', host=None,
                      auth_path=None, sender=None, override_num_retries=None):
