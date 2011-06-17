@@ -137,9 +137,9 @@ about that particular data point.
 My server obviously isn't very busy right now!
 """
 try:
-    import simplejson as json
-except ImportError:
     import json
+except ImportError:
+    import simplejson as json
 
 from boto.connection import AWSQueryConnection
 from boto.ec2.cloudwatch.metric import Metric
@@ -228,15 +228,13 @@ class CloudWatchConnection(AWSQueryConnection):
     def build_list_params(self, params, items, label):
         if isinstance(items, str):
             items = [items]
-        elif isinstance(items, dict):
-            i = 1
-            for name in items:
-                params['%s.%d.Name' % (label,i)] = name
-                params['%s.%d.Value' % (label,i)] = items[name]
-                i += 1
-        else:
-            for i in range(1, len(items)+1):
-                params[label % i] = items[i-1]
+        for i, item in enumerate(items, 1):
+            if isinstance(item, dict):
+                for k,v in item.iteritems():
+                    params[label % (i, 'Name')] = k
+                    params[label % (i, 'Value')] = v
+            else:
+                params[label % i] = item
 
     def get_metric_statistics(self, period, start_time, end_time, metric_name,
                               namespace, statistics, dimensions=None,
@@ -263,17 +261,6 @@ class CloudWatchConnection(AWSQueryConnection):
 
         :type metric_name: string
         :param metric_name: The metric name.
-
-        :type namespace: string
-        :param namespace: The metric's namespace.
-
-        :type statistics: list
-        :param statistics: A list of statistics names Valid values:
-                           Average | Sum | SampleCount | Maximum | Minimum
-
-        :type dimensions: DimensionList
-        :param dimensions: A list of Dimensions describing qualities
-                           of the metric.
         :rtype: list
         """
         params = {'Period' : period,
@@ -283,7 +270,9 @@ class CloudWatchConnection(AWSQueryConnection):
                   'EndTime' : end_time.isoformat()}
         self.build_list_params(params, statistics, 'Statistics.member.%d')
         if dimensions:
-            dimensions.build_param_list(params)
+            for i, name in enumerate(dimensions, 1):
+                params['Dimensions.member.%d.Name' % i] = name
+                params['Dimensions.member.%d.Value' % i] = dimensions[name]
         return self.get_list('GetMetricStatistics', params,
                              [('member', Datapoint)])
 
@@ -293,30 +282,13 @@ class CloudWatchConnection(AWSQueryConnection):
         Returns a list of the valid metrics for which there is recorded
         data available.
 
-        :type next_token: str
+        :type next_token: string
         :param next_token: A maximum of 500 metrics will be returned at one
                            time.  If more results are available, the
                            ResultSet returned will contain a non-Null
                            next_token attribute.  Passing that token as a
                            parameter to list_metrics will retrieve the
                            next page of metrics.
-
-        :type dimension: dict
-        :param dimension_filters: A dictionary containing name/value pairs
-                                  that will be used to filter the results.
-                                  The key in the dictionary is the name of
-                                  a Dimension.  The value in the dictionary
-                                  is either a specific value of that Dimension
-                                  name that you want to filter on or None if
-                                  you want all metrics with that Dimension name.
-
-        :type metric_name: str
-        :param metric_name: The name of the Metric to filter against.  If None,
-                            all Metric names will be returned.
-
-        :type namespace: str
-        :param namespace: A Metric namespace to filter against (e.g. AWS/EC2).
-                          If None, Metrics from all namespaces will be returned.
         """
         params = {}
         if next_token:
@@ -336,46 +308,71 @@ class CloudWatchConnection(AWSQueryConnection):
         """
         Publishes metric data points to Amazon CloudWatch. Amazon Cloudwatch 
         associates the data points with the specified metric. If the specified 
-        metric does not exist, Amazon CloudWatch creates the metric. If a list 
-        is specified for some, but not all, of the arguments, the remaining 
-        arguments are repeated a corresponding number of times.
+        metric does not exist, Amazon CloudWatch creates the metric.
 
-        :type namespace: str
+        :type namespace: string
         :param namespace: The namespace of the metric.
 
-        :type name: str or list
+        :type name: string
         :param name: The name of the metric.
 
-        :type value: float or list
+        :type value: int
         :param value: The value for the metric.
 
-        :type timestamp: datetime or list
+        :type timestamp: datetime
         :param timestamp: The time stamp used for the metric. If not specified, 
-            the default value is set to the time the metric data was received.
+                          the default value is set to the time the metric data 
+                          was received.
         
-        :type unit: string or list
+        :type unit: string
         :param unit: The unit of the metric.  Valid Values: Seconds | 
-            Microseconds | Milliseconds | Bytes | Kilobytes |
-            Megabytes | Gigabytes | Terabytes | Bits | Kilobits |
-            Megabits | Gigabits | Terabits | Percent | Count |
-            Bytes/Second | Kilobytes/Second | Megabytes/Second |
-            Gigabytes/Second | Terabytes/Second | Bits/Second |
-            Kilobits/Second | Megabits/Second | Gigabits/Second |
-            Terabits/Second | Count/Second | None
+                     Microseconds | Milliseconds | Bytes | Kilobytes | 
+                     Megabytes | Gigabytes | Terabytes | Bits | Kilobits | 
+                     Megabits | Gigabits | Terabits | Percent | Count | 
+                     Bytes/Second | Kilobytes/Second | Megabytes/Second | 
+                     Gigabytes/Second | Terabytes/Second | Bits/Second | 
+                     Kilobits/Second | Megabits/Second | Gigabits/Second | 
+                     Terabits/Second | Count/Second | None
         
-        :type dimensions: dict or list
+        :type dimensions: dict
         :param dimensions: Add extra name value pairs to associate 
-            with the metric, i.e.:
-            {'name1': value1, 'name2': (value2, value3)}
+                           with the metric, i.e.:
+                           {'name1': value1, 'name2': value2}
         
-        :type statistics: dict or list
-        :param statistics: Use a statistic set instead of a value, for example::
-
-            {'maximum': 30, 'minimum': 1, 'samplecount': 100, 'sum': 10000}
+        :type statistics: dict
+        :param statistics: Use a statistic set instead of a value, for example
+                           {'maximum': 30, 'minimum': 1,
+                            'samplecount': 100, 'sum': 10000}
         """
         params = {'Namespace': namespace}
-        self.build_put_params(params, name, value=value, timestamp=timestamp,
-            unit=unit, dimensions=dimensions, statistics=statistics)
+        metric_data = {'MetricName': name}
+
+        if timestamp:
+            metric_data['Timestamp'] = timestamp.isoformat()
+        
+        if unit:
+            metric_data['Unit'] = unit
+        
+        if dimensions:
+            for i, (name, val) in enumerate(dimensions.iteritems(), 1):
+                metric_data['Dimensions.member.%d.Name' % i] = name
+                metric_data['Dimensions.member.%d.Value' % i] = val
+        
+        if statistics:
+            metric_data['StatisticValues.Maximum'] = statistics['maximum']
+            metric_data['StatisticValues.Minimum'] = statistics['minimum']
+            metric_data['StatisticValues.SampleCount'] = statistics['samplecount']
+            metric_data['StatisticValues.Sum'] = statistics['sum']
+            if value != None:
+                log.warn('You supplied a value and statistics for a metric.  Posting statistics and not value.')
+
+        elif value:
+            metric_data['Value'] = value
+        else:
+            raise Exception('Must specify a value or statistics to put.')
+
+        for k, v in metric_data.iteritems():
+            params['MetricData.member.1.%s' % (k)] = v
 
         return self.get_status('PutMetricData', params)
 
@@ -512,7 +509,7 @@ class CloudWatchConnection(AWSQueryConnection):
         if statistic:
             params['Statistic'] = statistic
         if dimensions:
-            self.build_param_list(params, dimensions,
+            self.build_list_params(params, dimensions,
                                    'Dimensions.member.%s.%s')
         if unit:
             params['Unit'] = unit
@@ -553,7 +550,8 @@ class CloudWatchConnection(AWSQueryConnection):
         if alarm.description:
             params['AlarmDescription'] = alarm.description
         if alarm.dimensions:
-            self.build_list_params(params, alarm.dimensions, 'Dimensions.member')
+            self.build_list_params(params, alarm.dimensions,
+                                   'Dimensions.member.%s.%s')
         if alarm.insufficient_data_actions:
             self.build_list_params(params, alarm.insufficient_data_actions,
                                    'InsufficientDataActions.member.%s')
