@@ -141,12 +141,7 @@ class HTTPRequest(object):
             auth_path = path
         self.auth_path = auth_path
         self.params = params
-        self.headers = headers.copy()
-        # chunked Transfer-Encoding should act only on PUT request.
-        if headers and 'Transfer-Encoding' in headers and \
-                headers['Transfer-Encoding'] == 'chunked' and \
-                self.method != 'PUT':
-            del self.headers['Transfer-Encoding']
+        self.headers = headers
         self.body = body
 
     def __str__(self):
