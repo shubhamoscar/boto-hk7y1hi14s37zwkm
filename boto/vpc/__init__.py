@@ -27,7 +27,7 @@ from boto.ec2.connection import EC2Connection
 from boto.resultset import ResultSet
 from boto.vpc.vpc import VPC
 from boto.vpc.customergateway import CustomerGateway
-from boto.vpc.routetable import RouteTable
+from boto.vpc.internetgateway import InternetGateway
 from boto.vpc.vpngateway import VpnGateway, Attachment
 from boto.vpc.dhcpoptions import DhcpOptions
 from boto.vpc.subnet import Subnet
@@ -96,149 +96,90 @@ class VPCConnection(EC2Connection):
         params = {'VpcId': vpc_id}
         return self.get_status('DeleteVpc', params)
 
-    # Route Tables
+    # Internet Gateways
 
-    def get_all_route_tables(self, route_table_ids=None, filters=None):
+    def get_all_internet_gateways(self, internet_gateway_ids=None, filters=None):
         """
-        Retrieve information about your routing tables. You can filter results
-        to return information only about those route tables that match your
-        search parameters. Otherwise, all route tables associated with your
-        account are returned.
+        Get a list of internet gateways. You can filter results to return information
+        about only those gateways that you're interested in.
 
-        :type route_table_ids: list
-        :param route_table_ids: A list of strings with the desired route table
-                                IDs.
+        :type internet_gateway_ids: list
+        :param internet_gateway_ids: A list of strings with the desired gateway IDs.
 
         :type filters: list of tuples
-        :param filters: A list of tuples containing filters. Each tuple
+        :param filters: A list of tuples containing filters.  Each tuple
                         consists of a filter key and a filter value.
-
-        :rtype: list
-        :return: A list of :class:`boto.vpc.routetable.RouteTable`
         """
         params = {}
-        if route_table_ids:
-            self.build_list_params(params, route_table_ids, "RouteTableId")
+
+        if internet_gateway_ids:
+            self.build_list_params(params, internet_gateway_ids, 'InternetGatewayId')
         if filters:
             self.build_filter_params(params, dict(filters))
-        return self.get_list('DescribeRouteTables', params, [('item', RouteTable)])
 
-    def associate_route_table(self, route_table_id, subnet_id):
+        return self.get_list('DescribeInternetGateways', params, [('item', InternetGateway)])
+
+    def create_internet_gateway(self):
         """
-        Associates a route table with a specific subnet.
+        Creates an internet gateway for VPC.
 
-        :type route_table_id: str
-        :param route_table_id: The ID of the route table to associate.
-
-        :type subnet_id: str
-        :param subnet_id: The ID of the subnet to associate with.
-
-        :rtype: str
-        :return: The ID of the association created
+        :rtype: Newly created internet gateway.
+        :return: `boto.vpc.internetgateway.InternetGateway`
         """
-        params = {
-            'RouteTableId': route_table_id,
-            'SubnetId': subnet_id
-        }
+        return self.get_object('CreateInternetGateway', {}, InternetGateway)
 
-        result = self.get_object('AssociateRouteTable', params, ResultSet)
-        return result.associationId
-
-    def disassociate_route_table(self, association_id):
+    def delete_internet_gateway(self, internet_gateway_id):
         """
-        Removes an association from a route table. This will cause all subnets
-        that would've used this association to now use the main routing
-        association instead.
+        Deletes an internet gateway from the VPC.
 
-        :type association_id: str
-        :param association_id: The ID of the association to disassociate.
+        :type internet_gateway_id: str
+        :param internet_gateway_id: The ID of the internet gateway to delete.
 
-        :rtype: bool
+        :rtype: Bool
         :return: True if successful
         """
-        params = { 'AssociationId': association_id }
-        return self.get_status('DisassociateRouteTable', params)
+        params = { 'InternetGatewayId': internet_gateway_id }
+        return self.get_status('DeleteInternetGateway', params)
 
-    def create_route_table(self, vpc_id):
+    def attach_internet_gateway(self, internet_gateway_id, vpc_id):
         """
-        Creates a new route table.
+        Attach an internet gateway to a specific VPC.
+
+        :type internet_gateway_id: str
+        :param internet_gateway_id: The ID of the internet gateway to delete.
 
         :type vpc_id: str
-        :param vpc_id: The VPC ID to associate this route table with.
+        :param vpc_id: The ID of the VPC to attach to.
 
-        :rtype: The newly created route table
-        :return: A :class:`boto.vpc.routetable.RouteTable` object
-        """
-        params = { 'VpcId': vpc_id }
-        return self.get_object('CreateRouteTable', params, RouteTable)
-
-    def delete_route_table(self, route_table_id):
-        """
-        Delete a route table.
-
-        :type route_table_id: str
-        :param route_table_id: The ID of the route table to delete.
-
-        :rtype: bool
-        :return: True if successful
-        """
-        params = { 'RouteTableId': route_table_id }
-        return self.get_status('DeleteRouteTable', params)
-
-    def create_route(self, route_table_id, destination_cidr_block, gateway_id=None, instance_id=None):
-        """
-        Creates a new route in the route table within a VPC. The route's target
-        can be either a gateway attached to the VPC or a NAT instance in the
-        VPC.
-
-        :type route_table_id: str
-        :param route_table_id: The ID of the route table for the route.
-
-        :type destination_cidr_block: str
-        :param destination_cidr_block: The CIDR address block used for the
-                                       destination match.
-
-        :type gateway_id: str
-        :param gateway_id: The ID of the gateway attached to your VPC.
-
-        :type instance_id: str
-        :param instance_id: The ID of a NAT instance in your VPC.
-
-        :rtype: bool
+        :rtype: Bool
         :return: True if successful
         """
         params = {
-            'RouteTableId': route_table_id,
-            'DestinationCidrBlock': destination_cidr_block
+            'InternetGatewayId': internet_gateway_id,
+            'VpcId': vpc_id
         }
 
-        if gateway_id is not None:
-            params['GatewayId'] = gateway_id
-        elif instance_id is not None:
-            params['InstanceId'] = instance_id
+        return self.get_status('AttachInternetGateway', params)
 
-        return self.get_status('CreateRoute', params)
-
-    def delete_route(self, route_table_id, destination_cidr_block):
+    def detach_internet_gateway(self, internet_gateway_id, vpc_id):
         """
-        Deletes a route from a route table within a VPC.
+        Detach an internet gateway from a specific VPC.
 
-        :type route_table_id: str
-        :param route_table_id: The ID of the route table with the route.
+        :type internet_gateway_id: str
+        :param internet_gateway_id: The ID of the internet gateway to delete.
 
-        :type destination_cidr_block: str
-        :param destination_cidr_block: The CIDR address block used for
-                                       destination match.
+        :type vpc_id: str
+        :param vpc_id: The ID of the VPC to attach to.
 
-        :rtype: bool
+        :rtype: Bool
         :return: True if successful
         """
         params = {
-            'RouteTableId': route_table_id,
-            'DestinationCidrBlock': destination_cidr_block
+            'InternetGatewayId': internet_gateway_id,
+            'VpcId': vpc_id
         }
 
-        return self.get_status('DeleteRoute', params)
+        return self.get_status('DetachInternetGateway', params)
 
     # Customer Gateways
 
