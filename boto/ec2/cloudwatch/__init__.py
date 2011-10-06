@@ -593,8 +593,7 @@ class CloudWatchConnection(AWSQueryConnection):
         if alarm.description:
             params['AlarmDescription'] = alarm.description
         if alarm.dimensions:
-            self.build_list_params(params, alarm.dimensions,
-                                   'Dimensions.member.%s.%s')
+            self.build_dimension_param(alarm.dimensions, params)
         if alarm.insufficient_data_actions:
             self.build_list_params(params, alarm.insufficient_data_actions,
                                    'InsufficientDataActions.member.%s')
