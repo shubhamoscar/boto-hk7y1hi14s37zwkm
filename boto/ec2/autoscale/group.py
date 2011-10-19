@@ -250,6 +250,7 @@ class AutoScalingGroup(object):
         self.desired_capacity = 0
         self.update()
 
+<<<<<<< HEAD
     #def get_all_triggers(self):
     #    """ Get all triggers for this auto scaling group. """
     #    params = {'AutoScalingGroupName' : self.name}
@@ -263,10 +264,13 @@ class AutoScalingGroup(object):
     #    return triggers
 
     def delete(self):
+=======
+    def delete(self, force_delete=False):
+>>>>>>> b9809ab... Upgrade autoscale API version to 2011-01-01, add support for force deleting autoscale groups
         """ Delete this auto-scaling group if no instances attached or no
         scaling activities in progress.
         """
-        return self.connection.delete_auto_scaling_group(self.name)
+        return self.connection.delete_auto_scaling_group(self.name, force_delete)
 
     def get_activities(self, activity_ids=None, max_records=50):
         """
