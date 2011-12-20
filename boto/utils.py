@@ -75,8 +75,8 @@ qsa_of_interest = ['acl', 'defaultObjectAcl', 'location', 'logging',
                    'versioning', 'versionId', 'versions', 'website', 
                    'uploads', 'uploadId', 'response-content-type', 
                    'response-content-language', 'response-expires', 
-                   'response-cache-control', 'response-content-disposition',
-                   'response-content-encoding']
+                   'reponse-cache-control', 'response-content-disposition',
+                   'response-content-encoding', 'delete']
 
 # generates the aws canonical string for the given parameters
 def canonical_string(method, path, headers, expires=None,
