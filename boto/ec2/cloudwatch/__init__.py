@@ -227,6 +227,15 @@ class CloudWatchConnection(AWSQueryConnection):
     def _required_auth_capability(self):
         return ['ec2']
 
+    def build_dimension_param(self, dimension, params):
+        for i, dim_name in enumerate(dimension):
+            dim_value = dimension[dim_name]
+            if isinstance(dim_value, basestring):
+                dim_value = [dim_value]
+            for j, value in enumerate(dim_value):
+                params['Dimensions.member.%d.Name.%d' % (i+1, j+1)] = dim_name
+                params['Dimensions.member.%d.Value.%d' % (i+1, j+1)] = value
+    
     def build_list_params(self, params, items, label):
         if isinstance(items, str):
             items = [items]
