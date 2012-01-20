@@ -22,7 +22,9 @@ Currently Supported Services
 
   * :doc:`CloudFront <cloudfront_tut>` -- (:doc:`API Reference <ref/cloudfront>`)
 
-* **Database**
+  * SimpleDB
+  * Relational Data Services (RDS)
+  * DynamoDB
 
   * SimpleDB -- (:doc:`API Reference <ref/sdb>`)
   * DynamoDB -- (:doc:`API Reference <ref/dynamodb>`)
@@ -99,13 +101,8 @@ Additional Resources
    ref/ses
    ref/route53
    vpc_tut
-   ref/vpc
-   elb_tut
-   ref/fps
-   s3_tut
-   ref/s3
-   ref/mturk
-
+   emr_tut
+   dynamodb_tut
    ref/index
    documentation
 
