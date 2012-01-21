@@ -92,6 +92,8 @@ Additional Resources
    cloudfront_tut
    ref/cloudfront
    ref/sdb
+   dynamodb_tut
+   ref/dynamodb
    ref/rds
    ref/cloudformation
    ref/iam
