@@ -26,8 +26,8 @@ Currently Supported Services
   * Relational Data Services (RDS)
   * DynamoDB
 
-  * SimpleDB -- (:doc:`API Reference <ref/sdb>`)
-  * DynamoDB -- (:doc:`API Reference <ref/dynamodb>`)
+  * :doc:`SimpleDB <simpledb_tut>`-- (:doc:`API Reference <ref/sdb>`)
+  * :doc:`DynamoDB <dynamodb_tut>` -- (:doc:`API Reference <ref/dynamodb>`)
   * Relational Data Services (RDS) -- (:doc:`API Reference <ref/rds>`)
 
 * **Deployment and Management**
