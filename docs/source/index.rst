@@ -85,6 +85,7 @@ Additional Resources
    :hidden:
 
    ec2_tut
+   security_groups
    ref/ec2
    emr_tut
    ref/emr
