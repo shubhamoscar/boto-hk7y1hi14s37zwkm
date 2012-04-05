@@ -276,7 +276,7 @@ class CloudWatchConnection(AWSQueryConnection):
         for k, v in metric_data.iteritems():
             params['MetricData.member.1.%s' % (k)] = v
 
-        return self.get_status('PutMetricData', params)
+        return self.get_status('PutMetricData', params, verb="POST")
 
 
     def describe_alarms(self, action_prefix=None, alarm_name_prefix=None,
