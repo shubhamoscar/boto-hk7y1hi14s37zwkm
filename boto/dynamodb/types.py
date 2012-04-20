@@ -26,10 +26,11 @@ Python types and vice-versa.
 """
 
 def is_num(n):
-    return isinstance(n, (int, long, float, bool))
+    types = (int, long, float, bool)
+    return isinstance(n, types) or n in types
 
 def is_str(n):
-    return isinstance(n, basestring)
+    return isinstance(n, basestring) or (isinstance(n, type) and issubclass(n, basestring))
 
 def convert_num(s):
     if '.' in s:
