@@ -1,4 +1,5 @@
-# Copyright (c) 2010 Mitch Garnaat http://garnaat.org/
+# Copyright (c) 2010-2012 Mitch Garnaat http://garnaat.org/
+# Copyright (c) 2012 Amazon.com, Inc. or its affiliates.  All Rights Reserved
 #
 # Permission is hereby granted, free of charge, to any person obtaining a
 # copy of this software and associated documentation files (the
@@ -14,7 +15,7 @@
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
 # OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABIL-
 # ITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT
-# SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, 
+# SHALL THE AUTHOR BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
 # WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
@@ -27,6 +28,7 @@ try:
     import simplejson as json
 except ImportError:
     import json
+
 
 class SNSConnection(AWSQueryConnection):
 
@@ -62,7 +64,7 @@ class SNSConnection(AWSQueryConnection):
                            this method.
 
         """
-        params = {'ContentType' : 'JSON'}
+        params = {'ContentType': 'JSON'}
         if next_token:
             params['NextToken'] = next_token
         response = self.make_request('ListTopics', params, '/', 'GET')
@@ -73,7 +75,7 @@ class SNSConnection(AWSQueryConnection):
             boto.log.error('%s %s' % (response.status, response.reason))
             boto.log.error('%s' % body)
             raise self.ResponseError(response.status, response.reason, body)
-        
+
     def get_topic_attributes(self, topic):
         """
         Get attributes of a Topic
@@ -82,8 +84,8 @@ class SNSConnection(AWSQueryConnection):
         :param topic: The ARN of the topic.
 
         """
-        params = {'ContentType' : 'JSON',
-                  'TopicArn' : topic}
+        params = {'ContentType': 'JSON',
+                  'TopicArn': topic}
         response = self.make_request('GetTopicAttributes', params, '/', 'GET')
         body = response.read()
         if response.status == 200:
@@ -92,7 +94,7 @@ class SNSConnection(AWSQueryConnection):
             boto.log.error('%s %s' % (response.status, response.reason))
             boto.log.error('%s' % body)
             raise self.ResponseError(response.status, response.reason, body)
-        
+
     def set_topic_attributes(self, topic, attr_name, attr_value):
         """
         Get attributes of a Topic
@@ -109,10 +111,10 @@ class SNSConnection(AWSQueryConnection):
         :param attr_value: The new value for the attribute.
 
         """
-        params = {'ContentType' : 'JSON',
-                  'TopicArn' : topic,
-                  'AttributeName' : attr_name,
-                  'AttributeValue' : attr_value}
+        params = {'ContentType': 'JSON',
+                  'TopicArn': topic,
+                  'AttributeName': attr_name,
+                  'AttributeValue': attr_value}
         response = self.make_request('SetTopicAttributes', params, '/', 'GET')
         body = response.read()
         if response.status == 200:
@@ -121,7 +123,7 @@ class SNSConnection(AWSQueryConnection):
             boto.log.error('%s %s' % (response.status, response.reason))
             boto.log.error('%s' % body)
             raise self.ResponseError(response.status, response.reason, body)
-        
+
     def add_permission(self, topic, label, account_ids, actions):
         """
         Adds a statement to a topic's access control policy, granting
@@ -142,9 +144,9 @@ class SNSConnection(AWSQueryConnection):
                         specified principal(s).
 
         """
-        params = {'ContentType' : 'JSON',
-                  'TopicArn' : topic,
-                  'Label' : label}
+        params = {'ContentType': 'JSON',
+                  'TopicArn': topic,
+                  'Label': label}
         self.build_list_params(params, account_ids, 'AWSAccountId.member')
         self.build_list_params(params, actions, 'ActionName.member')
         response = self.make_request('AddPermission', params, '/', 'GET')
@@ -155,7 +157,7 @@ class SNSConnection(AWSQueryConnection):
             boto.log.error('%s %s' % (response.status, response.reason))
             boto.log.error('%s' % body)
             raise self.ResponseError(response.status, response.reason, body)
-        
+
     def remove_permission(self, topic, label):
         """
         Removes a statement from a topic's access control policy.
@@ -168,9 +170,9 @@ class SNSConnection(AWSQueryConnection):
                       to be removed.
 
         """
-        params = {'ContentType' : 'JSON',
-                  'TopicArn' : topic,
-                  'Label' : label}
+        params = {'ContentType': 'JSON',
+                  'TopicArn': topic,
+                  'Label': label}
         response = self.make_request('RemovePermission', params, '/', 'GET')
         body = response.read()
         if response.status == 200:
@@ -179,7 +181,7 @@ class SNSConnection(AWSQueryConnection):
             boto.log.error('%s %s' % (response.status, response.reason))
             boto.log.error('%s' % body)
             raise self.ResponseError(response.status, response.reason, body)
-        
+
     def create_topic(self, topic):
         """
         Create a new Topic.
@@ -188,8 +190,8 @@ class SNSConnection(AWSQueryConnection):
         :param topic: The name of the new topic.
 
         """
-        params = {'ContentType' : 'JSON',
-                  'Name' : topic}
+        params = {'ContentType': 'JSON',
+                  'Name': topic}
         response = self.make_request('CreateTopic', params, '/', 'GET')
         body = response.read()
         if response.status == 200:
@@ -207,8 +209,8 @@ class SNSConnection(AWSQueryConnection):
         :param topic: The ARN of the topic
 
         """
-        params = {'ContentType' : 'JSON',
-                  'TopicArn' : topic}
+        params = {'ContentType': 'JSON',
+                  'TopicArn': topic}
         response = self.make_request('DeleteTopic', params, '/', 'GET')
         body = response.read()
         if response.status == 200:
@@ -217,8 +219,6 @@ class SNSConnection(AWSQueryConnection):
             boto.log.error('%s %s' % (response.status, response.reason))
             boto.log.error('%s' % body)
             raise self.ResponseError(response.status, response.reason, body)
-
-
 
     def publish(self, topic, message, subject=None):
         """
@@ -237,9 +237,9 @@ class SNSConnection(AWSQueryConnection):
                         line of the email notifications.
 
         """
-        params = {'ContentType' : 'JSON',
-                  'TopicArn' : topic,
-                  'Message' : message}
+        params = {'ContentType': 'JSON',
+                  'TopicArn': topic,
+                  'Message': message}
         if subject:
             params['Subject'] = subject
         response = self.make_request('Publish', params, '/', 'GET')
@@ -250,7 +250,7 @@ class SNSConnection(AWSQueryConnection):
             boto.log.error('%s %s' % (response.status, response.reason))
             boto.log.error('%s' % body)
             raise self.ResponseError(response.status, response.reason, body)
-        
+
     def subscribe(self, topic, protocol, endpoint):
         """
         Subscribe to a Topic.
@@ -271,12 +271,11 @@ class SNSConnection(AWSQueryConnection):
                          * For http, this would be a URL beginning with http
                          * For https, this would be a URL beginning with https
                          * For sqs, this would be the ARN of an SQS Queue
-
         """
-        params = {'ContentType' : 'JSON',
-                  'TopicArn' : topic,
-                  'Protocol' : protocol,
-                  'Endpoint' : endpoint}
+        params = {'ContentType': 'JSON',
+                  'TopicArn': topic,
+                  'Protocol': protocol,
+                  'Endpoint': endpoint}
         response = self.make_request('Subscribe', params, '/', 'GET')
         body = response.read()
         if response.status == 200:
@@ -293,7 +292,7 @@ class SNSConnection(AWSQueryConnection):
         This is convenience method that handles most of the complexity involved
         in using an SQS queue as an endpoint for an SNS topic.  To achieve this
         the following operations are performed:
-        
+
         * The correct ARN is constructed for the SQS queue and that ARN is
           then subscribed to the topic.
         * A JSON policy document is contructed that grants permission to
@@ -302,7 +301,7 @@ class SNSConnection(AWSQueryConnection):
           the queue's set_attribute method.  If the queue already has
           a policy associated with it, this process will add a Statement to
           that policy.  If no policy exists, a new policy will be created.
-          
+
         :type topic: string
         :param topic: The name of the new topic.
 
@@ -318,12 +317,12 @@ class SNSConnection(AWSQueryConnection):
             policy['Version'] = '2008-10-17'
         if 'Statement' not in policy:
             policy['Statement'] = []
-        statement = {'Action' : 'SQS:SendMessage',
-                     'Effect' : 'Allow',
-                     'Principal' : {'AWS' : '*'},
-                     'Resource' : q_arn,
-                     'Sid' : str(uuid.uuid4()),
-                     'Condition' : {'StringLike' : {'aws:SourceArn' : topic}}}
+        statement = {'Action': 'SQS:SendMessage',
+                     'Effect': 'Allow',
+                     'Principal': {'AWS': '*'},
+                     'Resource': q_arn,
+                     'Sid': str(uuid.uuid4()),
+                     'Condition': {'StringLike': {'aws:SourceArn': topic}}}
         policy['Statement'].append(statement)
         queue.set_attribute('Policy', json.dumps(policy))
         return resp
@@ -347,9 +346,9 @@ class SNSConnection(AWSQueryConnection):
                                             of the subscription.
 
         """
-        params = {'ContentType' : 'JSON',
-                  'TopicArn' : topic,
-                  'Token' : token}
+        params = {'ContentType': 'JSON',
+                  'TopicArn': topic,
+                  'Token': token}
         if authenticate_on_unsubscribe:
             params['AuthenticateOnUnsubscribe'] = 'true'
         response = self.make_request('ConfirmSubscription', params, '/', 'GET')
@@ -360,7 +359,7 @@ class SNSConnection(AWSQueryConnection):
             boto.log.error('%s %s' % (response.status, response.reason))
             boto.log.error('%s' % body)
             raise self.ResponseError(response.status, response.reason, body)
-        
+
     def unsubscribe(self, subscription):
         """
         Allows endpoint owner to delete subscription.
@@ -370,8 +369,8 @@ class SNSConnection(AWSQueryConnection):
         :param subscription: The ARN of the subscription to be deleted.
 
         """
-        params = {'ContentType' : 'JSON',
-                  'SubscriptionArn' : subscription}
+        params = {'ContentType': 'JSON',
+                  'SubscriptionArn': subscription}
         response = self.make_request('Unsubscribe', params, '/', 'GET')
         body = response.read()
         if response.status == 200:
@@ -380,7 +379,7 @@ class SNSConnection(AWSQueryConnection):
             boto.log.error('%s %s' % (response.status, response.reason))
             boto.log.error('%s' % body)
             raise self.ResponseError(response.status, response.reason, body)
-        
+
     def get_all_subscriptions(self, next_token=None):
         """
         Get list of all subscriptions.
@@ -390,7 +389,7 @@ class SNSConnection(AWSQueryConnection):
                            this method.
 
         """
-        params = {'ContentType' : 'JSON'}
+        params = {'ContentType': 'JSON'}
         if next_token:
             params['NextToken'] = next_token
         response = self.make_request('ListSubscriptions', params, '/', 'GET')
@@ -401,7 +400,7 @@ class SNSConnection(AWSQueryConnection):
             boto.log.error('%s %s' % (response.status, response.reason))
             boto.log.error('%s' % body)
             raise self.ResponseError(response.status, response.reason, body)
-        
+
     def get_all_subscriptions_by_topic(self, topic, next_token=None):
         """
         Get list of all subscriptions to a specific topic.
@@ -415,8 +414,8 @@ class SNSConnection(AWSQueryConnection):
                            this method.
 
         """
-        params = {'ContentType' : 'JSON',
-                  'TopicArn' : topic}
+        params = {'ContentType': 'JSON',
+                  'TopicArn': topic}
         if next_token:
             params['NextToken'] = next_token
         response = self.make_request('ListSubscriptionsByTopic', params,
@@ -428,4 +427,3 @@ class SNSConnection(AWSQueryConnection):
             boto.log.error('%s %s' % (response.status, response.reason))
             boto.log.error('%s' % body)
             raise self.ResponseError(response.status, response.reason, body)
-        
