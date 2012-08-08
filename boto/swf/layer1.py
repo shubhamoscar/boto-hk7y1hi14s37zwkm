@@ -1095,7 +1095,8 @@ class Layer1(AWSAuthConnection):
         return self.make_request('GetWorkflowExecutionHistory', json_input)
 
     def count_open_workflow_executions(self, domain, latest_date, oldest_date,
-                                       tag=None, workflow_id=None,
+                                       tag=None,
+                                       workflow_id=None,
                                        workflow_name=None,
                                        workflow_version=None):
         """
@@ -1150,7 +1151,8 @@ class Layer1(AWSAuthConnection):
     def list_open_workflow_executions(self, domain,
                                       latest_date=None,
                                       oldest_date=None,
-                                      tag=None, workflow_id=None,
+                                      tag=None,
+                                      workflow_id=None,
                                       workflow_name=None,
                                       workflow_version=None,
                                       maximum_page_size=None,
@@ -1238,7 +1240,8 @@ class Layer1(AWSAuthConnection):
                                          close_latest_date=None,
                                          close_oldest_date=None,
                                          close_status=None,
-                                         tag=None, workflow_id=None,
+                                         tag=None,
+                                         workflow_id=None,
                                          workflow_name=None,
                                          workflow_version=None):
         """
@@ -1317,6 +1320,9 @@ class Layer1(AWSAuthConnection):
         if workflow_name and workflow_version:
             data['typeFilter'] = {'name': workflow_name,
                                   'version': workflow_version}
+        if workflow_id:
+            data['executionFilter'] = {'workflowId': workflow_id}
+
         json_input = json.dumps(data)
         return self.make_request('CountClosedWorkflowExecutions', json_input)
 
@@ -1326,7 +1332,8 @@ class Layer1(AWSAuthConnection):
                                         close_latest_date=None,
                                         close_oldest_date=None,
                                         close_status=None,
-                                        tag=None, workflow_id=None,
+                                        tag=None,
+                                        workflow_id=None,
                                         workflow_name=None,
                                         workflow_version=None,
                                         maximum_page_size=None,
