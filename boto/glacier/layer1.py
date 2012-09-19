@@ -69,6 +69,7 @@ class Layer1(AWSAuthConnection):
         headers['x-amz-glacier-version'] = self.Version
         uri = '/%s/%s' % (self.account_id, resource)
         response = AWSAuthConnection.make_request(self, verb, uri,
+                                                  params=params,
                                                   headers=headers,
                                                   data=data)
         if response.status in ok_responses:
