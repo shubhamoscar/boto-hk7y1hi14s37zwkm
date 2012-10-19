@@ -99,10 +99,12 @@ class SESConnection(AWSAuthConnection):
         )
         body = response.read()
         if response.status == 200:
-            list_markers = ('VerifiedEmailAddresses', 'Identities', 'VerificationAttributes', 'SendDataPoints')
+            list_markers = ('VerifiedEmailAddresses', 'Identities',
+                            'VerificationAttributes', 'SendDataPoints')
             item_markers = ('member', 'item', 'entry')
 
-            e = boto.jsonresponse.Element(list_marker=list_markers, item_marker=item_markers)
+            e = boto.jsonresponse.Element(list_marker=list_markers,
+                                          item_marker=item_markers)
             h = boto.jsonresponse.XmlHandler(e, None)
             h.parse(body)
             return e
