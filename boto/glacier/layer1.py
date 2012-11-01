@@ -322,6 +322,9 @@ class Layer1(AWSAuthConnection):
               output is ready for you to download.
             * Type - The job type.  Valid values are:
               archive-retrieval|inventory-retrieval
+            * RetrievalByteRange - Optionally specify the range of
+              bytes to retrieve.
+
         """
         uri = 'vaults/%s/jobs' % vault_name
         json_job_data = json.dumps(job_data)
