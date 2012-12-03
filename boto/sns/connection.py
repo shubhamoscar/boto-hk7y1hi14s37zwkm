@@ -256,7 +256,7 @@ class SNSConnection(AWSQueryConnection):
         Subscribe to a Topic.
 
         :type topic: string
-        :param topic: The name of the new topic.
+        :param topic: The ARN of the new topic.
 
         :type protocol: string
         :param protocol: The protocol used to communicate with
@@ -303,7 +303,7 @@ class SNSConnection(AWSQueryConnection):
           that policy.  If no policy exists, a new policy will be created.
 
         :type topic: string
-        :param topic: The name of the new topic.
+        :param topic: The ARN of the new topic.
 
         :type queue: A boto Queue object
         :param queue: The queue you wish to subscribe to the SNS Topic.
