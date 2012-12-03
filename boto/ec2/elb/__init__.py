@@ -28,6 +28,7 @@ from boto.ec2.instanceinfo import InstanceInfo
 from boto.ec2.elb.loadbalancer import LoadBalancer
 from boto.ec2.elb.instancestate import InstanceState
 from boto.ec2.elb.healthcheck import HealthCheck
+from boto.ec2.elb.listelement import ListElement
 from boto.regioninfo import RegionInfo
 import boto
 
@@ -173,7 +174,8 @@ class ELBConnection(AWSQueryConnection):
             to an Amazon VPC.
 
         :rtype: :class:`boto.ec2.elb.loadbalancer.LoadBalancer`
-        :return: The newly created :class:`boto.ec2.elb.loadbalancer.LoadBalancer`
+        :return: The newly created
+            :class:`boto.ec2.elb.loadbalancer.LoadBalancer`
         """
         params = {'LoadBalancerName' : name}
         for index, listener in enumerate(listeners):
@@ -281,8 +283,8 @@ class ELBConnection(AWSQueryConnection):
         params = {'LoadBalancerName' : load_balancer_name}
         self.build_list_params(params, zones_to_add,
                                'AvailabilityZones.member.%d')
-        return self.get_list('EnableAvailabilityZonesForLoadBalancer',
-                             params, None)
+        return self.get_object('EnableAvailabilityZonesForLoadBalancer',
+                               params, ListElement)
 
     def disable_availability_zones(self, load_balancer_name, zones_to_remove):
         """
@@ -305,8 +307,8 @@ class ELBConnection(AWSQueryConnection):
         params = {'LoadBalancerName' : load_balancer_name}
         self.build_list_params(params, zones_to_remove,
                                'AvailabilityZones.member.%d')
-        return self.get_list('DisableAvailabilityZonesForLoadBalancer',
-                             params, None)
+        return self.get_object('DisableAvailabilityZonesForLoadBalancer',
+                               params, ListElement)
 
     def register_instances(self, load_balancer_name, instances):
         """
