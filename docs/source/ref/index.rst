@@ -23,6 +23,7 @@ API Reference
    iam
    manage
    mturk
+   mws
    pyami
    rds
    route53
