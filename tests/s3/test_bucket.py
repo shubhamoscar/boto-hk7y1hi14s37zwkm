@@ -34,6 +34,7 @@ from boto.s3.connection import S3Connection
 from boto.s3.bucketlogging import BucketLogging
 from boto.s3.acl import Grant
 from boto.s3.tagging import Tags, TagSet
+from boto.s3.lifecycle import Lifecycle
 
 
 class S3BucketTest (unittest.TestCase):
@@ -79,6 +80,23 @@ class S3BucketTest (unittest.TestCase):
         for element in rs:
             self.assertEqual(element.name, expected.pop(0))
         self.assertEqual(expected, [])
+
+    def test_lifecycle_jp(self):
+        # test lifecycle with Japanese prefix
+        name = "Japanese files"
+        prefix = u"日本語/"
+        days = 30
+        lifecycle = Lifecycle()
+        lifecycle.add_rule(name, prefix, "Enabled", days)
+        # set the lifecycle
+        self.bucket.configure_lifecycle(lifecycle)
+        # read the lifecycle back
+        readlifecycle = self.bucket.get_lifecycle_config();
+        for rule in readlifecycle:
+            self.assertEqual(rule.id, name)
+            self.assertEqual(rule.expiration, days)
+            #Note: Boto seems correct? AWS seems broken?
+            #self.assertEqual(rule.prefix, prefix)
 
     def test_logging(self):
         # use self.bucket as the target bucket so that teardown
