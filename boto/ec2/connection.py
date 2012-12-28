@@ -2143,7 +2143,7 @@ class EC2Connection(AWSQueryConnection):
                        if any.
 
         :rtype: :class:`boto.ec2.securitygroup.SecurityGroup`
-        :return: The newly created :class:`boto.ec2.keypair.KeyPair`.
+        :return: The newly created :class:`boto.ec2.securitygroup.SecurityGroup`.
         """
         params = {
             'GroupName': name,
