@@ -3110,3 +3110,14 @@ class EC2Connection(AWSQueryConnection):
         """
         params = {'NetworkInterfaceId' : network_interface_id}
         return self.get_status('DeleteNetworkInterface', params, verb='POST')
+
+    def get_all_vmtypes(self):
+        """
+        Get all vmtypes available on this cloud (eucalyptus specific)
+
+        :rtype: list of :class:`boto.ec2.vmtype.VmType`
+        :return: The requested VmType objects
+        """
+        params = {}
+        return self.get_list('DescribeVmTypes', params, [('euca:item', VmType)], verb='POST')
+       
