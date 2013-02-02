@@ -675,7 +675,7 @@ class VPCConnection(EC2Connection):
 
         :type destination_cidr_block: str
         :param destination_cidr_block: The CIDR block associated with the local
-        subnet of the customer data center.
+            subnet of the customer data center.
 
         :type vpn_connection_id: str
         :param vpn_connection_id: The ID of the VPN connection.
@@ -699,7 +699,7 @@ class VPCConnection(EC2Connection):
 
         :type destination_cidr_block: str
         :param destination_cidr_block: The CIDR block associated with the local
-        subnet of the customer data center.
+            subnet of the customer data center.
 
         :type vpn_connection_id: str
         :param vpn_connection_id: The ID of the VPN connection.
