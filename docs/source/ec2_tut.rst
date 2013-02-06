@@ -35,7 +35,7 @@ Possibly, the most important and common task you'll use EC2 for is to launch, st
 In its most primitive form, you can launch an instance as follows::
 
     >>> conn.run_instances('<ami-image-id>')
-    
+
 This will launch an instance in the specified region with the default parameters.
 
 Now, let's say that you already have a key pair, want a specific type of instance, and
