@@ -738,6 +738,7 @@ class AWSAuthConnection(object):
         boto.log.debug('Data: %s' % request.body)
         boto.log.debug('Headers: %s' % request.headers)
         boto.log.debug('Host: %s' % request.host)
+        boto.log.debug('Params: %s' % request.params)
         response = None
         body = None
         e = None
