@@ -19,7 +19,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
 # IN THE SOFTWARE.
 
-import cgi
 import errno
 import httplib
 import os
@@ -28,7 +27,6 @@ import re
 import socket
 import time
 import urlparse
-import boto
 from boto import config, UserAgent
 from boto.connection import AWSAuthConnection
 from boto.exception import InvalidUriError
@@ -380,7 +378,6 @@ class ResumableUploadHandler(object):
                 (total_bytes_uploaded, file_length),
                 ResumableTransferDisposition.ABORT)
         resp = http_conn.getresponse()
-        body = resp.read()
         # Restore http connection debug level.
         http_conn.set_debuglevel(conn.debug)
 
