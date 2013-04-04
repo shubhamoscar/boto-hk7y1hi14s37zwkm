@@ -146,6 +146,7 @@ Additional Resources
    ref/datapipeline
    ref/elasticache
    ref/elastictranscoder
+   ref/redshift
 
 
 Indices and tables

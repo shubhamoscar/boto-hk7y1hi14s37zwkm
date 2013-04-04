@@ -26,6 +26,7 @@ API Reference
    mws
    pyami
    rds
+   redshift
    route53
    s3
    sdb
