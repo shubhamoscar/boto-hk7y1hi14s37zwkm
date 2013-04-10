@@ -517,9 +517,11 @@ class AutoScaleConnection(AWSQueryConnection):
             self.build_list_params(params, scaling_processes, 'ScalingProcesses')
         return self.get_status('ResumeProcesses', params)
 
-    def create_scheduled_group_action(self, as_group, name, time,
+    def create_scheduled_group_action(self, as_group, name, time=None,
                                       desired_capacity=None,
-                                      min_size=None, max_size=None):
+                                      min_size=None, max_size=None,
+                                      start_time=None, end_time=None,
+                                      recurrence=None):
         """
         Creates a scheduled scaling action for a Auto Scaling group. If you
         leave a parameter unspecified, the corresponding value remains
@@ -545,8 +547,15 @@ class AutoScaleConnection(AWSQueryConnection):
         :param max_size: The minimum size for the new auto scaling group.
         """
         params = {'AutoScalingGroupName': as_group,
-                  'ScheduledActionName': name,
-                  'Time': time.isoformat()}
+                  'ScheduledActionName': name}
+        if start_time is not None:
+            params['StartTime'] = start_time.isoformat()
+        if end_time is not None:
+            params['EndTime'] = end_time.isoformat()
+        if recurrence is not None:
+            params['Recurrence'] = recurrence
+        if time:
+            params['Time'] = time.isoformat()
         if desired_capacity is not None:
             params['DesiredCapacity'] = desired_capacity
         if min_size is not None:
