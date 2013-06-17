@@ -55,7 +55,7 @@ class SNSConnection(AWSQueryConnection):
                                     security_token=security_token)
 
     def _required_auth_capability(self):
-        return ['sns']
+        return ['hmac-v4']
 
     def get_all_topics(self, next_token=None):
         """
