@@ -95,7 +95,7 @@ class RDSConnection(AWSQueryConnection):
                                     https_connection_factory, path)
 
     def _required_auth_capability(self):
-        return ['rds']
+        return ['hmac-v4']
 
     # DB Instance methods
 
