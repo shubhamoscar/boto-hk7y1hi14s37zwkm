@@ -57,6 +57,8 @@ class Attachment(object):
             self.id = value
         elif name == 'instanceId':
             self.instance_id = value
+        elif name == 'deviceIndex':
+            self.device_index = value
         elif name == 'instanceOwnerId':
             self.instance_owner_id = value
         elif name == 'status':
