@@ -34,7 +34,12 @@ from boto.exception import InvalidUriError
 __version__ = '2.3.0-dev'
 Version = __version__ # for backware compatibility
 
-UserAgent = 'Boto/%s (%s)' % (__version__, sys.platform)
+UserAgent = 'Boto/%s Python/%s %s/%s' % (
+    __version__,
+    platform.python_version(),
+    platform.system(),
+    platform.release()
+)
 config = Config()
 
 def init_logging():
